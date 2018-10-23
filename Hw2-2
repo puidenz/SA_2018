@@ -4,11 +4,29 @@ if ! [ -e cos_info.txt ]; then
 fi
 
 #format class information
-cat 'cos_info.txt' | sed 'N; s#\n# #' | \
-sed -e 's#"cos_time":"##g' -e 's#cos_ename":"##' -e 's#" "# - #g' | sed -e 's#"##g' > format_cos.txt
+cat 'cos_info.txt' | sed -e 'N; s#\n# #' -e 's# #_#g' | \
+sed -e 's#"cos_time":"##g' -e 's#cos_ename":"##' -e 's#"_"#-#g' | sed -e 's#"##g' > format_cos.txt
 
 #convert to dialog format
-input_to_add=$(cat 'format_cos.txt' | awk '{print "f"NR, "\"" $0 "\"", "off"}')
+if ! [ -e class_state.txt ]; then 
+  cat 'format_cos.txt' | awk '{print NR, "\"" $0 "\"", "off"}' > class_state.txt
+  for i in `seq 1 5`;do
+    
 
-dialog --buildlist "Add class" 50 60 20 `$input_to_add`
+  done
+fi
+
+
+# change calss_state by dialog
+change_stat=$(dialog --buildlist "Add class" 70 90 20 `cat class_state.txt` --output-fd 1)
+for i in $change_stat;do
+  #echo $i;
+  
+  sed -e "$i s# off# on#g" class_state.txt > class_state.txt.tmp
+  cat class_state.txt.tmp > class_state.txt
+done
+#cat class_state.tx
+
+#class collision
+
 
